@@ -1,4 +1,11 @@
+using hubiso.Data;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
+
+// Adicionar a Connection String e o DbContext
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))); // <-- ADICIONAR 3
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
