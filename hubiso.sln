@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36414.22 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "hubiso", "hubiso.csproj", "{4EDF6EEF-F043-48C1-91FF-A76206E6BAF4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4EDF6EEF-F043-48C1-91FF-A76206E6BAF4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4EDF6EEF-F043-48C1-91FF-A76206E6BAF4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4EDF6EEF-F043-48C1-91FF-A76206E6BAF4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4EDF6EEF-F043-48C1-91FF-A76206E6BAF4}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {272F24C3-2465-4EC8-A0D7-891B0A841288}
+	EndGlobalSection
+EndGlobal
