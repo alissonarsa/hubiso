@@ -1,2 +1,14 @@
 ﻿<script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
 <script src="~/lib/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.min.js"></script>
+
+<script>
+    // Este script modifica o validador numérico do jQuery para que ele
+    // aceite tanto ponto (.) como vírgula (,) como separador decimal.
+    // Isto resolve o conflito entre a cultura do navegador (pt-BR)
+    // e a validação de cliente padrão.
+    $(document).ready(function () {
+        $.validator.methods.number = function (value, element) {
+            return this.optional(element) || /^-?(?:\d+|\d{1,3}(?:[\s\.,]\d{3})+)?(?:[\.,]\d+)?$/.test(value);
+        };
+    });
+</script>
