@@ -11,5 +11,6 @@ namespace hubiso.Data
 
         // Esta linha diz ao Entity Framework para gerir uma tabela de Materiais
         public DbSet<Material> Materiais { get; set; }
+        public DbSet<Cliente> Clientes { get; set; }
     }
 }
