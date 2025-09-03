@@ -1,20 +1,33 @@
 using hubiso.Data;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
-using System.Globalization; // <-- ADICIONAR 1: Para trabalhar com culturas
-using Microsoft.AspNetCore.Localization; // <-- ADICIONAR 2: Para trabalhar com localização
+using System.Globalization;
+using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Configura um HttpClient nomeado especificamente para a BrasilAPI
+builder.Services.AddHttpClient("BrasilApi", client =>
+{
+    client.BaseAddress = new Uri("https://brasilapi.com.br/");
+    client.DefaultRequestHeaders.Add("User-Agent", "hubiso-app");
+});
 
 // Adicionar a Connection String e o DbContext
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Add services to the container.
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews()
+    .AddJsonOptions(options =>
+    {
+        // Garante que todas as respostas JSON da API usem camelCase
+        options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+    });
 
 var app = builder.Build();
 
-// --- INÍCIO DA NOVA CONFIGURAÇÃO DE CULTURA ---
+// --- Configuração de Cultura para pt-BR ---
 var supportedCultures = new[] { new CultureInfo("pt-BR") };
 var localizationOptions = new RequestLocalizationOptions
 {
@@ -24,23 +37,24 @@ var localizationOptions = new RequestLocalizationOptions
 };
 
 app.UseRequestLocalization(localizationOptions);
-// --- FIM DA NOVA CONFIGURAÇÃO DE CULTURA ---
-
+// --- Fim da Configuração de Cultura ---
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
 app.UseHttpsRedirection();
-app.UseStaticFiles(); // O MapStaticAssets() que você tinha foi atualizado para isto em versões mais recentes
+app.UseStaticFiles();
 
 app.UseRouting();
 
 app.UseAuthorization();
+
+// Adicionado pelo Copilot - Garante que as rotas por atributo sejam mapeadas
+app.MapControllers();
 
 app.MapControllerRoute(
     name: "default",
