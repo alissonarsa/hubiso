@@ -3,6 +3,7 @@ using hubiso.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Net.Http.Json;
+using System.Text.Json;
 
 namespace hubiso.Controllers
 {
@@ -35,17 +36,18 @@ namespace hubiso.Controllers
             return View(cliente);
         }
 
-        // GET: clientes/create
-        [HttpGet("create")]
+        // GET: clientes/criar
+        [HttpGet("criar")]
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: clientes/create
-        [HttpPost("create")]
+        // POST: clientes/criar
+        [HttpPost("criar")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Cnpj,RazaoSocial,NomeFantasia,InscricaoEstadual,Ativo")] Cliente cliente)
+        // CORREÇÃO: Adicionados os novos campos de endereço ao [Bind]
+        public async Task<IActionResult> Create([Bind("Id,Cnpj,RazaoSocial,NomeFantasia,InscricaoEstadual,Cep,Logradouro,Numero,Complemento,Bairro,Cidade,Uf,Ativo")] Cliente cliente)
         {
             if (ModelState.IsValid)
             {
@@ -69,7 +71,8 @@ namespace hubiso.Controllers
         // POST: clientes/edit/5
         [HttpPost("edit/{id}")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Cnpj,RazaoSocial,NomeFantasia,InscricaoEstadual,Ativo")] Cliente cliente)
+        // CORREÇÃO: Adicionados os novos campos de endereço ao [Bind]
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Cnpj,RazaoSocial,NomeFantasia,InscricaoEstadual,Cep,Logradouro,Numero,Complemento,Bairro,Cidade,Uf,Ativo")] Cliente cliente)
         {
             if (id != cliente.Id) return NotFound();
             if (ModelState.IsValid)
@@ -125,9 +128,7 @@ namespace hubiso.Controllers
             }
 
             var client = _httpClientFactory.CreateClient("BrasilApi");
-
             var response = await client.GetAsync($"api/cnpj/v2/{apenasNumeros}");
-
             if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
             {
                 response = await client.GetAsync($"api/cnpj/v1/{apenasNumeros}");
@@ -136,11 +137,38 @@ namespace hubiso.Controllers
             if (response.IsSuccessStatusCode)
             {
                 var data = await response.Content.ReadFromJsonAsync<CnpjResponse>();
-                // Usar Ok() garante que as configurações globais de JSON (camelCase) sejam aplicadas
                 return Ok(data);
             }
 
             return StatusCode((int)response.StatusCode, new { message = "Erro ao consultar CNPJ na API externa." });
+        }
+
+        // --- NOVO MÉTODO PARA CONSULTAR O CEP ---
+        [HttpGet("consultar-cep/{cep}")]
+        public async Task<IActionResult> ConsultarCep(string cep)
+        {
+            var apenasNumeros = new string(cep.Where(char.IsDigit).ToArray());
+            if (string.IsNullOrWhiteSpace(apenasNumeros) || apenasNumeros.Length != 8)
+            {
+                return BadRequest(new { message = "CEP deve conter 8 dígitos." });
+            }
+
+            var client = _httpClientFactory.CreateClient();
+            var response = await client.GetAsync($"https://viacep.com.br/ws/{apenasNumeros}/json/");
+
+            if (response.IsSuccessStatusCode)
+            {
+                var responseString = await response.Content.ReadAsStringAsync();
+                if (responseString.Contains("\"erro\": true"))
+                {
+                    return NotFound(new { message = "CEP não encontrado." });
+                }
+
+                var data = JsonSerializer.Deserialize<CepResponse>(responseString);
+                return Ok(data);
+            }
+
+            return StatusCode((int)response.StatusCode, new { message = "Erro ao consultar CEP na API externa." });
         }
     }
 }

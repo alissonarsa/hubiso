@@ -1,17 +1,19 @@
 ﻿@model hubiso.Models.Cliente
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Criar Cliente";
 }
 
-<h1>Create</h1>
+<h1>Criar</h1>
 
 <h4>Cliente</h4>
 <hr />
 <div class="row">
-    <div class="col-md-4">
+    <div class="col-md-6">
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <h5>Dados da Empresa</h5>
             <div class="form-group">
                 <label asp-for="Cnpj" class="control-label"></label>
                 <div class="input-group">
@@ -37,20 +39,79 @@
                 <input asp-for="InscricaoEstadual" class="form-control" />
                 <span asp-validation-for="InscricaoEstadual" class="text-danger"></span>
             </div>
+
+            <hr />
+            <h5>Endereço</h5>
+
+            <div class="form-group">
+                <label asp-for="Cep" class="control-label"></label>
+                <div class="input-group">
+                    <input asp-for="Cep" class="form-control" />
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-secondary" type="button" id="btn-buscar-cep">Buscar</button>
+                    </div>
+                </div>
+                <span asp-validation-for="Cep" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Logradouro" class="control-label"></label>
+                <input asp-for="Logradouro" class="form-control" />
+                <span asp-validation-for="Logradouro" class="text-danger"></span>
+            </div>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label asp-for="Numero" class="control-label"></label>
+                        <input asp-for="Numero" class="form-control" />
+                        <span asp-validation-for="Numero" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-8">
+                    <div class="form-group">
+                        <label asp-for="Complemento" class="control-label"></label>
+                        <input asp-for="Complemento" class="form-control" />
+                        <span asp-validation-for="Complemento" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label asp-for="Bairro" class="control-label"></label>
+                <input asp-for="Bairro" class="form-control" />
+                <span asp-validation-for="Bairro" class="text-danger"></span>
+            </div>
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="form-group">
+                        <label asp-for="Cidade" class="control-label"></label>
+                        <input asp-for="Cidade" class="form-control" />
+                        <span asp-validation-for="Cidade" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label asp-for="Uf" class="control-label"></label>
+                        <input asp-for="Uf" class="form-control" />
+                        <span asp-validation-for="Uf" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+
+            <hr />
+
             <div class="form-group form-check">
                 <label class="form-check-label">
                     <input class="form-check-input" asp-for="Ativo" /> @Html.DisplayNameFor(model => model.Ativo)
                 </label>
             </div>
             <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
+                <input type="submit" value="Criar" class="btn btn-primary" />
             </div>
         </form>
     </div>
 </div>
 
 <div>
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="Index">Voltar para a Lista</a>
 </div>
 
 @section Scripts {
@@ -59,14 +120,17 @@
     }
 
     <script>
+        // Garante que o script só roda depois da página carregar completamente
         $(document).ready(function () {
+
+            // --- CÓDIGO ANTIGO PARA BUSCA DE CNPJ ---
             $('#btn-buscar-cnpj').on('click', async function () {
                 const cnpjInput = $('#Cnpj');
                 const razaoSocialInput = $('#RazaoSocial');
                 const nomeFantasiaInput = $('#NomeFantasia');
                 const btnBuscar = $(this);
-
                 const cnpj = cnpjInput.val();
+
                 if (!cnpj) {
                     alert('Por favor, digite um CNPJ.');
                     return;
@@ -74,18 +138,12 @@
 
                 btnBuscar.text('Buscando...');
                 btnBuscar.prop('disabled', true);
-
                 try {
                     const response = await fetch(`/clientes/consultar-cnpj/${cnpj}`);
-
                     if (response.ok) {
                         const data = await response.json();
-                        // Suporta camelCase (razaoSocial, nomeFantasia) e snake_case (razao_social, nome_fantasia)
-                        const razao = data.razaoSocial ?? data.razao_social ?? '';
-                        const fantasia = data.nomeFantasia ?? data.nome_fantasia ?? '';
-
-                        if (razao) razaoSocialInput.val(razao);
-                        if (fantasia) nomeFantasiaInput.val(fantasia);
+                        razaoSocialInput.val(data.razaoSocial);
+                        nomeFantasiaInput.val(data.nomeFantasia);
                     } else {
                         alert('CNPJ não encontrado ou inválido.');
                     }
@@ -97,6 +155,47 @@
                     btnBuscar.prop('disabled', false);
                 }
             });
+
+            // --- NOVO CÓDIGO PARA BUSCA DE CEP ---
+            $('#btn-buscar-cep').on('click', async function () {
+                const cepInput = $('#Cep');
+                const logradouroInput = $('#Logradouro');
+                const bairroInput = $('#Bairro');
+                const cidadeInput = $('#Cidade');
+                const ufInput = $('#Uf');
+                const numeroInput = $('#Numero'); // Para focar no final
+                const btnBuscar = $(this);
+
+                const cep = cepInput.val();
+                if (!cep) {
+                    alert('Por favor, digite um CEP.');
+                    return;
+                }
+
+                btnBuscar.text('Buscando...');
+                btnBuscar.prop('disabled', true);
+
+                try {
+                    const response = await fetch(`/clientes/consultar-cep/${cep}`);
+                    if (response.ok) {
+                        const data = await response.json();
+                        logradouroInput.val(data.logradouro);
+                        bairroInput.val(data.bairro);
+                        cidadeInput.val(data.localidade); // A API retorna "localidade" para a cidade
+                        ufInput.val(data.uf);
+
+                        // Foco no campo "Número" para o utilizador preencher
+                        numeroInput.focus();
+                    } else {
+                        alert('CEP não encontrado ou inválido.');
+                    }
+                } catch (error) {
+                    console.error('Erro ao buscar CEP:', error);
+                    alert('Ocorreu um erro ao tentar buscar o CEP.');
+                } finally {
+                    btnBuscar.text('Buscar');
+                    btnBuscar.prop('disabled', false);
+                }
+            });
         });
     </script>
-}
