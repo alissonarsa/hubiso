@@ -34,7 +34,6 @@
         <dd class="col-sm-10">
             @Html.DisplayFor(model => model.InscricaoEstadual)
         </dd>
-
         <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Cep)
         </dt>
@@ -71,7 +70,7 @@
         <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Cidade)
         </dd>
-        <dt class_="col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Uf)
         </dt>
         <dd class="col-sm-10">
@@ -126,6 +125,52 @@
             {
                 <tr>
                     <td colspan="5">Nenhum solicitante encontrado para este cliente.</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<hr />
+<div>
+    <h4>Endereços de Obra deste Cliente</h4>
+    <p>
+        <a asp-controller="EnderecoObras" asp-action="Create" asp-route-clienteId="@Model.Id" class="btn btn-primary btn-sm">
+            Adicionar Novo Endereço de Obra
+        </a>
+    </p>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Descrição</th>
+                <th>CEP</th>
+                <th>Cidade</th>
+                <th>UF</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.EnderecosObra != null && Model.EnderecosObra.Any())
+            {
+                @foreach (var item in Model.EnderecosObra)
+                {
+                    <tr>
+                        <td>@Html.DisplayFor(modelItem => item.DescricaoLocal)</td>
+                        <td>@Html.DisplayFor(modelItem => item.Cep)</td>
+                        <td>@Html.DisplayFor(modelItem => item.Cidade)</td>
+                        <td>@Html.DisplayFor(modelItem => item.Uf)</td>
+                        <td>
+                            <a asp-controller="EnderecoObras" asp-action="Edit" asp-route-id="@item.Id">Editar</a> |
+                            <a asp-controller="EnderecoObras" asp-action="Details" asp-route-id="@item.Id">Detalhes</a> |
+                            <a asp-controller="EnderecoObras" asp-action="Delete" asp-route-id="@item.Id">Apagar</a>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="5">Nenhum endereço de obra encontrado para este cliente.</td>
                 </tr>
             }
         </tbody>
