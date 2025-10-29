@@ -8,9 +8,8 @@ namespace hubiso.Data
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
         }
-
-        // Esta linha diz ao Entity Framework para gerir uma tabela de Materiais
         public DbSet<Material> Materiais { get; set; }
         public DbSet<Cliente> Clientes { get; set; }
+        public DbSet<Solicitante> Solicitantes { get; set; }
     }
 }
