@@ -12,5 +12,6 @@ namespace hubiso.Data
         public DbSet<Cliente> Clientes { get; set; }
         public DbSet<Solicitante> Solicitantes { get; set; }
         public DbSet<EnderecoObra> EnderecosObra { get; set; }
+        public DbSet<EmailFaturamento> EmailsFaturamento { get; set; }
     }
 }
