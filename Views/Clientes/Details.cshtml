@@ -1,48 +1,137 @@
 ﻿@model hubiso.Models.Cliente
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Detalhes do Cliente";
 }
 
-<h1>Details</h1>
+<h1>Detalhes</h1>
 
 <div>
     <h4>Cliente</h4>
     <hr />
     <dl class="row">
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Cnpj)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Cnpj)
         </dd>
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.RazaoSocial)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.RazaoSocial)
         </dd>
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.NomeFantasia)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.NomeFantasia)
         </dd>
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.InscricaoEstadual)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.InscricaoEstadual)
         </dd>
-        <dt class = "col-sm-2">
+
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Cep)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Cep)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Logradouro)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Logradouro)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Numero)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Numero)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Complemento)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Complemento)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Bairro)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Bairro)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Cidade)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Cidade)
+        </dd>
+        <dt class_="col-sm-2">
+            @Html.DisplayNameFor(model => model.Uf)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Uf)
+        </dd>
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Ativo)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Ativo)
         </dd>
     </dl>
 </div>
+
+<hr />
 <div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+    <h4>Solicitantes deste Cliente</h4>
+    <p>
+        <a asp-controller="Solicitantes" asp-action="Create" asp-route-clienteId="@Model.Id" class="btn btn-primary btn-sm">
+            Adicionar Novo Solicitante
+        </a>
+    </p>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Nome</th>
+                <th>E-mail</th>
+                <th>Telefone</th>
+                <th>Departamento</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.Solicitantes != null && Model.Solicitantes.Any())
+            {
+                @foreach (var item in Model.Solicitantes)
+                {
+                    <tr>
+                        <td>@Html.DisplayFor(modelItem => item.Nome)</td>
+                        <td>@Html.DisplayFor(modelItem => item.Email)</td>
+                        <td>@Html.DisplayFor(modelItem => item.Telefone)</td>
+                        <td>@Html.DisplayFor(modelItem => item.Departamento)</td>
+                        <td>
+                            <a asp-controller="Solicitantes" asp-action="Edit" asp-route-id="@item.Id">Editar</a> |
+                            <a asp-controller="Solicitantes" asp-action="Details" asp-route-id="@item.Id">Detalhes</a> |
+                            <a asp-controller="Solicitantes" asp-action="Delete" asp-route-id="@item.Id">Apagar</a>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="5">Nenhum solicitante encontrado para este cliente.</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model?.Id">Editar</a> |
+    <a asp-action="Index">Voltar para a Lista</a>
 </div>

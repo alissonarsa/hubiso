@@ -59,5 +59,7 @@ namespace hubiso.Models
 
         [Display(Name = "Ativo")]
         public bool Ativo { get; set; } = true;
+
+        public ICollection<Solicitante>? Solicitantes { get; set; }
     }
 }

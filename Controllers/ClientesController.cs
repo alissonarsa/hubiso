@@ -31,7 +31,9 @@ namespace hubiso.Controllers
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null) return NotFound();
-            var cliente = await _context.Clientes.FirstOrDefaultAsync(m => m.Id == id);
+            var cliente = await _context.Clientes
+            .Include(c => c.Solicitantes)
+            .FirstOrDefaultAsync(m => m.Id == id);
             if (cliente == null) return NotFound();
             return View(cliente);
         }
