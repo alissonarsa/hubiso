@@ -62,5 +62,6 @@ namespace hubiso.Models
 
         public ICollection<Solicitante>? Solicitantes { get; set; }
         public ICollection<EnderecoObra>? EnderecosObra { get; set; }
+        public ICollection<EmailFaturamento>? EmailsFaturamento { get; set; }
     }
 }

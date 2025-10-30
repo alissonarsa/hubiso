@@ -34,6 +34,7 @@ namespace hubiso.Controllers
             var cliente = await _context.Clientes
             .Include(c => c.Solicitantes)
             .Include(c => c.EnderecosObra)
+            .Include(c => c.EmailsFaturamento)
             .FirstOrDefaultAsync(m => m.Id == id);
             if (cliente == null) return NotFound();
             return View(cliente);
