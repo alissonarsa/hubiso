@@ -176,6 +176,52 @@
         </tbody>
     </table>
 </div>
+
+<hr />
+<div>
+    <h4>E-mails de Faturamento deste Cliente</h4>
+    <p>
+        <a asp-controller="EmailFaturamentos"
+           asp-action="Create"
+           asp-route-clienteId="@Model.Id"
+           class="btn btn-primary btn-sm">
+            Adicionar Novo E-mail de Faturamento
+        </a>
+    </p>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>E-mail</th>
+                <th>Ativo</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.EmailsFaturamento != null && Model.EmailsFaturamento.Any())
+            {
+                @foreach (var item in Model.EmailsFaturamento)
+                {
+                    <tr>
+                        <td>@Html.DisplayFor(modelItem => item.Email)</td>
+                        <td>@Html.DisplayFor(modelItem => item.Ativo)</td>
+                        <td>
+                            <a asp-controller="EmailFaturamentos" asp-action="Edit" asp-route-id="@item.Id">Editar</a> |
+                            <a asp-controller="EmailFaturamentos" asp-action="Details" asp-route-id="@item.Id">Detalhes</a> |
+                            <a asp-controller="EmailFaturamentos" asp-action="Delete" asp-route-id="@item.Id">Apagar</a>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="3">Nenhum e-mail de faturamento encontrado para este cliente.</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
 <div>
     <a asp-action="Edit" asp-route-id="@Model?.Id">Editar</a> |
     <a asp-action="Index">Voltar para a Lista</a>
