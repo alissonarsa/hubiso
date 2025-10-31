@@ -1,14 +1,43 @@
 ﻿@model IEnumerable<hubiso.Models.Cliente>
 
 @{
-    ViewData["Title"] = "Index";
+    // O título agora é definido dinamicamente pelo Controller
+    // (Ex: "Clientes Ativos", "Clientes Inativos")
+    ViewData["Title"] = ViewData["Title"] ?? "Clientes";
 }
 
-<h1>Index</h1>
+<h1>@ViewData["Title"]</h1>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="Create" class="btn btn-success">Criar Novo Cliente</a>
 </p>
+
+@{
+    // Pega o filtro atual que o Controller enviou
+    var filtro = ViewData["FiltroAtual"] as string ?? "ativos";
+
+    // Função local para definir a classe CSS do botão ativo
+    string GetActiveClass(string status)
+    {
+        return (filtro == status) ? "btn-primary" : "btn-outline-primary";
+    }
+}
+
+<div class="mb-3">
+    <a asp-action="Index" asp-route-filtroStatus="ativos"
+       class="btn @GetActiveClass("ativos")">
+        Ativos
+    </a>
+    <a asp-action="Index" asp-route-filtroStatus="inativos"
+       class="btn @GetActiveClass("inativos")">
+        Inativos
+    </a>
+    <a asp-action="Index" asp-route-filtroStatus="todos"
+       class="btn @GetActiveClass("todos")">
+        Todos
+    </a>
+</div>
+
 <table class="table">
     <thead>
         <tr>
@@ -31,29 +60,30 @@
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Cnpj)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.RazaoSocial)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.NomeFantasia)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.InscricaoEstadual)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Ativo)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Cnpj)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.RazaoSocial)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.NomeFantasia)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.InscricaoEstadual)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Ativo)
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id">Editar</a> |
+                    <a asp-action="Details" asp-route-id="@item.Id">Detalhes</a> |
+                    <a asp-action="Delete" asp-route-id="@item.Id">Inativar</a>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>

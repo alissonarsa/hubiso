@@ -21,9 +21,30 @@ namespace hubiso.Controllers
 
         // GET: clientes
         [HttpGet]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string filtroStatus = "ativos") // <== 1. Recebe o filtro
         {
-            return View(await _context.Clientes.ToListAsync());
+            // Inicia a consulta (sem executar)
+            var query = _context.Clientes.AsQueryable();
+            // 2. Aplica o filtro conforme o parâmetro
+            if (filtroStatus == "ativos")
+            {
+                query = query.Where(c => c.Ativo == true);
+                ViewData["Title"] = "Clientes Ativos"; // Define o título da página
+            }
+            else if (filtroStatus == "inativos")
+            {
+                query = query.Where(c => c.Ativo == false);
+                ViewData["Title"] = "Clientes Inativos"; // Define o título da página
+            }
+            else // "todos" ou qualquer outro valor
+            {
+                // Não aplica filtro de status
+                ViewData["Title"] = "Todos os Clientes"; // Define o título da página
+            }
+            // 3. Envia o filtro atual para a View (para sabermos qual botão destacar)
+            ViewData["FiltroAtual"] = filtroStatus;
+            // 4. Executa a consulta já filtrada e envia para a View
+            return View(await query.ToListAsync());
         }
 
         // GET: clientes/details/5
@@ -75,25 +96,67 @@ namespace hubiso.Controllers
         // POST: clientes/edit/5
         [HttpPost("edit/{id}")]
         [ValidateAntiForgeryToken]
-        // CORREÇÃO: Adicionados os novos campos de endereço ao [Bind]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Cnpj,RazaoSocial,NomeFantasia,InscricaoEstadual,Cep,Logradouro,Numero,Complemento,Bairro,Cidade,Uf,Ativo")] Cliente cliente)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,RazaoSocial,NomeFantasia,InscricaoEstadual,Cep,Logradouro,Numero,Complemento,Bairro,Cidade,Uf,Ativo")] Cliente clienteEditado)
         {
-            if (id != cliente.Id) return NotFound();
+            if (id != clienteEditado.Id) return NotFound();
+
+            // --- INÍCIO DA CORREÇÃO ---
+            // Remove a validação do CNPJ ANTES de checar o ModelState.
+            // Isso é necessário porque o CNPJ não está no [Bind],
+            // o que o faz ser 'null' no 'clienteEditado' e acionar o [Required]
+            // no pipeline de validação, antes mesmo de entrarmos neste método.
+            ModelState.Remove("Cnpj");
+            // --- FIM DA CORREÇÃO ---
+
+            var clienteOriginal = await _context.Clientes.FirstOrDefaultAsync(c => c.Id == id);
+
+            if (clienteOriginal == null) return NotFound();
+
+            // Agora, este 'if' vai passar (se os outros campos como RazaoSocial estiverem OK)
             if (ModelState.IsValid)
             {
                 try
                 {
-                    _context.Update(cliente);
+                    clienteOriginal.RazaoSocial = clienteEditado.RazaoSocial;
+                    clienteOriginal.NomeFantasia = clienteEditado.NomeFantasia;
+                    clienteOriginal.InscricaoEstadual = clienteEditado.InscricaoEstadual;
+                    clienteOriginal.Cep = clienteEditado.Cep;
+                    clienteOriginal.Logradouro = clienteEditado.Logradouro;
+                    clienteOriginal.Numero = clienteEditado.Numero;
+                    clienteOriginal.Complemento = clienteEditado.Complemento;
+                    clienteOriginal.Bairro = clienteEditado.Bairro;
+                    clienteOriginal.Cidade = clienteEditado.Cidade;
+                    clienteOriginal.Uf = clienteEditado.Uf;
+                    clienteOriginal.Ativo = clienteEditado.Ativo;
+
+                    _context.Update(clienteOriginal);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!ClienteExists(cliente.Id)) return NotFound();
+                    if (!ClienteExists(clienteOriginal.Id)) return NotFound();
                     else throw;
                 }
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Index)); // SUCESSO!
             }
-            return View(cliente);
+
+            // 5. SE O MODELSTATE FOR INVÁLIDO (Ex: Razão Social em branco)
+
+            // Recarregando as listas
+            await _context.Entry(clienteOriginal).Collection(c => c.Solicitantes).LoadAsync();
+            await _context.Entry(clienteOriginal).Collection(c => c.EnderecosObra).LoadAsync();
+            await _context.Entry(clienteOriginal).Collection(c => c.EmailsFaturamento).LoadAsync();
+
+            // Repopulando o 'clienteOriginal' com os dados *inválidos* que o usuário digitou
+            clienteOriginal.RazaoSocial = clienteEditado.RazaoSocial;
+            clienteOriginal.NomeFantasia = clienteEditado.NomeFantasia;
+            // ... (etc.) ...
+            clienteOriginal.Ativo = clienteEditado.Ativo;
+
+            // A linha 'ModelState.Remove("Cnpj");' foi removida daqui, 
+            // pois agora ela está no topo do método.
+
+            return View(clienteOriginal);
         }
 
         // GET: clientes/delete/5
@@ -112,7 +175,11 @@ namespace hubiso.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var cliente = await _context.Clientes.FindAsync(id);
-            if (cliente != null) _context.Clientes.Remove(cliente);
+            if (cliente != null)
+            {
+                cliente.Ativo = false;
+                _context.Clientes.Update(cliente);
+            }
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
